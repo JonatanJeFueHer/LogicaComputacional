@@ -1,0 +1,100 @@
+
+sesion-ghci-random dnf-29nov2023.txt
+
+-----------------------------
+b@RCA:~$ cd LC/Haskell/DNF/
+mcb@RCA:~/LC/Haskell/DNF$ ghci
+Loaded package environment from /home/mcb/.ghc/x86_64-linux-9.4.7/environments/default
+GHCi, version 9.4.7: https://www.haskell.org/ghc/  :? for help
+ghci> :l DnfTests.hs
+[1 of 4] Compiling DnfSintaxis      ( DnfSintaxis.hs, interpreted )
+[2 of 4] Compiling DnfSAT           ( DnfSAT.hs, interpreted )
+[3 of 4] Compiling DnfRandom        ( DnfRandom.hs, interpreted )
+[4 of 4] Compiling DnfTests         ( DnfTests.hs, interpreted )
+Ok, four modules loaded.
+ghci>
+ghci> (randomDnf (mkStdGen 9223372036854775807) 1 5 2)
+Dnf [Termino [Lpos "v1",Lpos "v1",Lpos "v2",Lneg "v2",Lneg "v2"]]
+ghci>
+ghci> (randomDnf (mkStdGen 9223372036854775807) 1 2 3) -- 1 termino, maximo dos literales, max 3 variable
+Dnf [Termino [Lpos "v1"]]
+ghci> (randomDnf (mkStdGen 9223372036854775807) 2 2 3) -- 2 terminos, maximo dos literales, max 3 variable
+Dnf [Termino [Lpos "v1"],Termino [Lpos "v1"]]
+ghci> (randomDnf (mkStdGen 9223372036854775807) 2 2 3) -- 3 terminos, maximo dos literales, max 3 variable
+Dnf [Termino [Lpos "v1"],Termino [Lpos "v1"]]
+ghci> (randomDnf (mkStdGen 9223372036854775807) 3 2 3) -- 3 terminos, maximo dos literales, max 3 variable
+Dnf [Termino [Lpos "v1"],Termino [Lpos "v1"],Termino [Lpos "v1",Lpos "v3"]]
+ghci>
+ghci>
+ghci>
+ghci> :set +s
+ghci>
+ghci>
+ghci> esSatisfactible (randomDnf (mkStdGen 9223372036854775807) 1 5 2)
+False
+(0.04 secs, 77,920 bytes)
+ghci>
+ghci> esSatisfactible (randomDnf (mkStdGen 9223372036854775807) 10 60000 200000) --10term,maxLiterales,maxVariables
+False
+(2.76 secs, 512,517,504 bytes)
+ghci>
+ghci> esSatisfactible (randomDnf (mkStdGen 9223372036854775807) 10 60000 2000000) --10term,...max2000000Var
+False
+(38.93 secs, 2,667,424,336 bytes)
+ghci> -- Del ejemplo anterior: los 10 terminos NO son satisfactible
+(0.00 secs, 0 bytes)
+ghci> --                        cada termino tiene un maximo de 60000 literales,
+(0.00 secs, 0 bytes)
+ghci> --                        se usan un máximo de 2 millones de variables.
+(0.00 secs, 0 bytes)
+ghci>
+ghci> -- Explorando un poco la fórmula anterior (la de 38.93 sec), usando patrones de Haskell:
+(0.00 secs, 0 bytes)
+ghci>
+ghci> f38sec = (randomDnf (mkStdGen 9223372036854775807) 10 60000 2000000) --10term,maxLiterales,maxVariables
+(0.00 secs, 29,408 bytes)
+ghci>
+ghci> Dnf listaDeTerminos = f38sec
+(0.00 secs, 0 bytes)
+ghci> length listaDeTerminos
+10
+(0.01 secs, 70,128 bytes)
+ghci>
+ghci> [Termino lLit1,Termino lLit2,Termino lLit3,Termino lLit4,Termino lLit5,Termino lLit6,Termino lLit7,Termino lLit8,Termino lLit9,Termino lLit10 ]= listaDeTerminos
+(0.02 secs, 0 bytes)
+ghci> -- Longitudes de las 10 listas de terminos, lLit1, lLit2,...,lLit10:
+(0.00 secs, 0 bytes)
+ghci>
+ghci> [length lLit1,length lLit2,length lLit3,length lLit4,length lLit5,length lLit6,length lLit7,length lLit8,length lLit9,length lLit10 ]
+[29965,48014,30996,26186,19753,29427,57851,3625,56367,22710]
+(0.54 secs, 237,642,376 bytes)
+ghci>
+ghci> -- Son terminos "grandes", el más pequeño 3625 literales, el mas grande 57851 literales.
+(0.00 secs, 0 bytes)
+ghci>
+ghci> longitudeDeTerminos= [length lLit1,length lLit2,length lLit3,length lLit4,length lLit5,length lLit6,length lLit7,length lLit8,length lLit9,length lLit10 ]
+(0.01 secs, 29,952 bytes)
+ghci>
+ghci> :t sum
+sum :: (Foldable t, Num a) => t a -> a
+ghci> sum longitudeDeTerminos -- Total de terminos en la formula  f38sec
+324894
+(0.05 secs, 68,264 bytes)
+ghci> -- 324894 literales en total
+(0.00 secs, 0 bytes)
+ghci> sum longitudeDeTerminos -- Total de tliterales en la formula f38sec
+324894
+(0.01 secs, 35,344 bytes)
+ghci> -- Tarea. hacer un funcion para transformar la negacion de una formula DNF a una formula CNF.
+(0.00 secs, 0 bytes)
+ghci> -- Tarea. Aplicar dicha funcion a not f38sec para obtener cnf38sec.
+(0.00 secs, 0 bytes)
+ghci> -- ¿Qué dice el teorema que relaciona phi, not phi, satisfactibilidad, y validez?
+(0.00 secs, 0 bytes)
+ghci> -- ¿Como se aplica dicho teorema a f38sec, not f38sec, satisfactibilidad, y validez?
+(0.00 secs, 0 bytes)
+ghci> -- Tarea. implementar (m |= phi), y ( |= phi), para formulas de cnf
+(0.00 secs, 0 bytes)
+ghci>
+ghci>
+-----------------------------
